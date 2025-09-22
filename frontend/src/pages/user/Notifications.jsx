@@ -34,6 +34,15 @@ export default function Notifications() {
     }
   };
 
+  const deleteNotification = async (id) => {
+    try {
+      await api.delete(`/notifications/${id}`);
+      setNotes((prev) => prev.filter((n) => n._id !== id));
+    } catch (_) {
+      console.log(_);
+    }
+  };
+
   return (
     <section>
       <h3 className="mb-4 text-xl font-semibold">Notifications</h3>
@@ -56,9 +65,17 @@ export default function Notifications() {
               </div>
               <div className="ml-4">
                 {n.read ? (
-                  <span className="rounded bg-gray-100 px-2 py-1 text-[10px] font-medium text-gray-600">
-                    READ
-                  </span>
+                  <div>
+                    <span className="rounded bg-gray-100 px-2 py-1 text-[10px] font-medium text-gray-600">
+                      READ
+                    </span>
+                    <button
+                      className="rounded-md border border-red-500 text-red-500 hover:text-white hover:bg-red-500 px-2 py-1 text-[12px] ml-2"
+                      onClick={() => deleteNotification(n._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 ) : (
                   <button
                     onClick={() => markRead(n._id)}

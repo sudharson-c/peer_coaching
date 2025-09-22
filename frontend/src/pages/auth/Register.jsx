@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/context";
+import { useEffect } from "react";
 
 function Register() {
   const { register } = useAuth();
@@ -19,8 +20,13 @@ function Register() {
       setError("Please use your institutional email.");
       return;
     }
-    await register(username, email, password);
+    await register(username, email, password).catch((err) => {
+      setError(err?.response?.data?.message || "Registration failed");
+    });
   };
+  useEffect(() => {
+    setTimeout(() => setError(""), 3000);
+  }, [error]);
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-100">
@@ -30,6 +36,7 @@ function Register() {
       >
         <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
 
+        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
         <input
           type="username"
           placeholder="Register No / Roll No  (eg: 22ITXXX)"
@@ -46,7 +53,6 @@ function Register() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
         <input
           type="password"
           placeholder="Password"

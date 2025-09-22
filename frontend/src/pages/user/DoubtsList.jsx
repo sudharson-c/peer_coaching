@@ -35,7 +35,7 @@ export default function DoubtsList() {
   return (
     <section>
       <header className="mb-4 flex items-center justify-between">
-        <h3 className="text-xl font-semibold">Doubts</h3>
+        <h3 className="text-md md:text-xl font-semibold p-2">Doubts</h3>
         <div className="flex items-center gap-2">
           <input
             value={q}
@@ -45,7 +45,7 @@ export default function DoubtsList() {
           />
           <Link
             to="/dashboard/new"
-            className="h-9 rounded bg-blue-600 px-3 text-sm font-medium text-white hover:bg-blue-700 flex items-center"
+            className=" rounded bg-blue-600 text-sm md:text-md md:p-2 text-white hover:bg-blue-700 text-center"
           >
             + New doubt
           </Link>

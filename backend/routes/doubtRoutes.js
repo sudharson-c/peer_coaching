@@ -1,6 +1,7 @@
 const authMiddleware = require('../middleware/authMiddleware');
 const Doubt = require('../models/Doubt');
 const Response = require('../models/Response');
+const User = require('../models/User');
 
 const router = require('express').Router();
 
@@ -47,7 +48,11 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     if (!doubt) return res.status(404).json({ success: false, message: 'Not found' });
     if (!doubt.postedBy.equals(req.user._id) && req.user.role !== 'admin') return res.status(403).json({ success: false, message: 'Not owner' });
     await Response.deleteMany({ doubt: doubt._id });
-    await doubt.remove();
+    await Doubt.deleteOne({ _id: doubt._id });
+    await User.updateMany(
+        { acceptedResponses: doubt._id },
+        { $pull: { acceptedResponses: doubt._id } }
+    );
     return res.json({ success: true, message: 'Deleted' });
 });
 

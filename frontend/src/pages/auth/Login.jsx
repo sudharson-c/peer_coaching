@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/context";
+import { useEffect } from "react";
 
 const Login = () => {
   const { login } = useAuth();
@@ -19,8 +20,14 @@ const Login = () => {
       return;
     }
 
-    await login(email, password);
+    await login(email, password).catch((err) => {
+      setError(err?.response?.data?.message || "Login failed");
+    });
   };
+
+  useEffect(() => {
+    setTimeout(() => setError(""), 3000);
+  }, [error]);
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-100">
@@ -30,6 +37,7 @@ const Login = () => {
       >
         <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
 
+        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
         <input
           type="email"
           placeholder="Email (your-name@student.tce.edu)"
@@ -39,7 +47,6 @@ const Login = () => {
           required
           autoSave="email"
         />
-        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
         <input
           type="password"

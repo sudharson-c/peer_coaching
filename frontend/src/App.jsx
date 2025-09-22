@@ -1,27 +1,33 @@
-// App.jsx
+// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { useAuth } from "./context/context";
+import Navbar from "./components/Navbar";
 
+// Auth
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+
+// Dashboard shells
 import Dashboard from "./pages/dashboard/Dashboard";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
-import Navbar from "./components/Navbar";
-import { AuthProvider } from "./context/AuthContext";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminDoubts from "./pages/admin/AdminDoubts";
-import AdminModeration from "./pages/admin/AdminModeration";
-import { useAuth } from "./context/context";
+
+// User pages
 import DoubtsList from "./pages/user/DoubtsList";
 import DoubtDetail from "./pages/user/DoubtDetail";
 import CreateDoubt from "./pages/user/CreateDoubt";
 import Notifications from "./pages/user/Notifications";
+
+// Admin pages
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminDoubts from "./pages/admin/AdminDoubts";
+import AdminModeration from "./pages/admin/AdminModeration";
 
 function ProtectedRoute({ children }) {
   const { user, authLoading } = useAuth();
   if (authLoading) return <div className="p-6 text-gray-500">Loading…</div>;
   return user ? children : <Navigate to="/login" replace />;
 }
-
 function RoleRoute({ allow, children }) {
   const { user, authLoading } = useAuth();
   if (authLoading) return <div className="p-6 text-gray-500">Loading…</div>;
@@ -44,7 +50,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Student+Mentor dashboard */}
+          {/* Student+Mentor */}
           <Route
             path="/dashboard"
             element={
@@ -59,7 +65,7 @@ export default function App() {
             <Route path="notifications" element={<Notifications />} />
           </Route>
 
-          {/* Admin layout + nested pages */}
+          {/* Admin */}
           <Route
             path="/admin"
             element={
@@ -75,8 +81,7 @@ export default function App() {
             <Route path="doubts" element={<AdminDoubts />} />
             <Route path="moderation" element={<AdminModeration />} />
           </Route>
-
-          {/* Legacy redirect */}
+          {/* Back-compat */}
           <Route
             path="/admin/dashboard"
             element={<Navigate to="/admin" replace />}

@@ -6,10 +6,6 @@ const Response = require("../models/Response");
 const User = require("../models/User");
 const router = require("express").Router();
 
-
-
-
-
 router.put("/add-mentor/:id", authMiddleware, checkAuth, async (req, res) => {
     const { id } = req.params;
     if (!id) return res.status(400).json({ success: false, message: 'Missing user ID' });
@@ -17,7 +13,7 @@ router.put("/add-mentor/:id", authMiddleware, checkAuth, async (req, res) => {
     if (!user) return res.status(404).json({ success: false, message: 'No such user' });
     user.role = 'mentor';
     await user.save();
-    res.json({ success: true, message: 'User promoted to mentor', data: { id: user._id, username: user.username, email: user.email, role: user.role } });
+    return res.json({ success: true, message: 'User promoted to mentor', data: { id: user._id, username: user.username, email: user.email, role: user.role } });
 });
 
 
@@ -28,15 +24,15 @@ router.get("/all-users", authMiddleware, checkAuth, async (req, res) => {
 
 router.get('/doubts', authMiddleware, checkAuth, async (req, res) => {
     const doubts = await Doubt.find().sort({ createdAt: -1 }).populate('postedBy', 'username');
-    res.json({ success: true, data: doubts });
+    return res.json({ success: true, data: doubts });
 });
 
 router.post('/responses/:id/flag', authMiddleware, checkAuth, async (req, res) => {
     const response = await Response.findById(req.params.id);
     if (!response) return res.status(404).json({ success: false, message: 'Not found' });
     // For now we just delete — in a real app you'd mark flagged and review
-    await response.remove();
-    res.json({ success: true, message: 'Response removed' });
+    await Response.deleteOne({ _id: response._id });
+    return res.json({ success: true, message: 'Response removed' });
 });
 
 router.delete('/users/:id', authMiddleware, checkAuth, async (req, res) => {
@@ -46,8 +42,10 @@ router.delete('/users/:id', authMiddleware, checkAuth, async (req, res) => {
     if (!user) return res.status(404).json({
         success: false, message: 'No such user'
     });
-    await user.remove();
-    res.json({ success: true, message: 'User deleted' });
+    await User.deleteOne({ _id: user._id });
+    await Doubt.deleteMany({ postedBy: user._id });
+    await Response.deleteMany({ author: user._id });
+    return res.json({ success: true, message: 'User deleted' });
 }
 );
 

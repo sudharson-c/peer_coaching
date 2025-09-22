@@ -2,6 +2,8 @@ const authMiddleware = require('../middleware/authMiddleware');
 const Doubt = require('../models/Doubt');
 const Notification = require('../models/Notification');
 const Response = require('../models/Response');
+const ResponseLike = require('../models/ResponseLike');
+const User = require('../models/User');
 
 const router = require('express').Router();
 
@@ -43,7 +45,11 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     const response = await Response.findById(req.params.id);
     if (!response) return res.status(404).json({ success: false, message: 'Not found' });
     if (!response.author.equals(req.user._id) && req.user.role !== 'admin') return res.status(403).json({ success: false, message: 'Not owner' });
-    await response.remove();
+    await Response.deleteOne({ _id: response._id });
+    await User.updateMany(
+        { acceptedResponses: response._id },
+        { $pull: { acceptedResponses: response._id } }
+    );
     return res.json({ success: true, message: 'Deleted' });
 });
 
@@ -51,8 +57,14 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 router.post('/:id/like', authMiddleware, async (req, res) => {
     const response = await Response.findById(req.params.id);
     if (!response) return res.status(404).json({ success: false, message: 'Not found' });
+    if (await ResponseLike.findOne({ response: response._id, user: req.user._id })) {
+        return res.status(400).json({ success: false, message: 'Already liked' });
+    }
     response.likes = (response.likes || 0) + 1;
+
     await response.save();
+
+    await ResponseLike.create({ response: response._id, user: req.user._id });
 
     // increase author's reputation
     const author = await User.findById(response.author);
