@@ -1,0 +1,55 @@
+const Doubt = require('../models/Doubt');
+
+const router = require('express').Router();
+
+
+router.post('/', authMiddleware, async (req, res) => {
+    const { title, description } = req.body;
+    if (!title) return res.status(400).json({ success: false, message: 'Title required' });
+    const doubt = new Doubt({ title, description, postedBy: req.user._id });
+    await doubt.save();
+    res.json({ success: true, data: doubt });
+});
+
+
+router.get('/', async (req, res) => {
+    const { tag, status, q, page = 1, limit = 20 } = req.query;
+    const filter = {};
+    if (tag) filter.tags = tag;
+    if (status) filter.status = status;
+    if (q) filter.$text = { $search: q };
+    const doubts = await Doubt.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(parseInt(limit)).populate('postedBy', 'name');
+    res.json({ success: true, data: doubts });
+});
+
+
+router.get('/:id', async (req, res) => {
+    const doubt = await Doubt.findById(req.params.id).populate('postedBy', 'name');
+    if (!doubt) return res.status(404).json({ success: false, message: 'Not found' });
+    const responses = await Response.find({ doubt: doubt._id }).populate('author', 'name role');
+    res.json({ success: true, data: { doubt, responses } });
+});
+
+
+router.patch('/:id', authMiddleware, async (req, res) => {
+    const doubt = await Doubt.findById(req.params.id);
+    if (!doubt) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!doubt.postedBy.equals(req.user._id) && req.user.role !== 'admin') return res.status(403).json({ success: false, message: 'Not owner' });
+    const { title, description, tags, status } = req.body;
+    if (title) doubt.title = title;
+    if (description) doubt.description = description;
+    if (tags) doubt.tags = tags;
+    if (status) doubt.status = status;
+    await doubt.save();
+    res.json({ success: true, data: doubt });
+});
+
+
+router.delete('/:id', authMiddleware, async (req, res) => {
+    const doubt = await Doubt.findById(req.params.id);
+    if (!doubt) return res.status(404).json({ success: false, message: 'Not found' });
+    if (!doubt.postedBy.equals(req.user._id) && req.user.role !== 'admin') return res.status(403).json({ success: false, message: 'Not owner' });
+    await Response.deleteMany({ doubt: doubt._id });
+    await doubt.remove();
+    res.json({ success: true, message: 'Deleted' });
+});
