@@ -1,7 +1,8 @@
 const authMiddleware = require("../middleware/authMiddleware");
 const User = require("../models/User");
 const router = require("express").Router();
-
+const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
 
 
 router.post("/register", async (req, res) => {
@@ -13,7 +14,7 @@ router.post("/register", async (req, res) => {
     const user = new User({ username, email, passwordHash });
     await user.save();
     const token = jwt.sign({ user }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({ success: true, data: { user: { id: user._id, name: user.name, email: user.email, role: user.role }, token } });
+    return res.json({ success: true, data: { user: { id: user._id, name: user.name, email: user.email, role: user.role }, token } });
 });
 
 
@@ -25,7 +26,7 @@ router.post("/login", async (req, res) => {
     const ok = await bcrypt.compare(password, user.passwordHash || '');
     if (!ok) return res.status(400).json({ success: false, message: 'Invalid credentials' });
     const token = jwt.sign({ user }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({ success: true, data: { user: { id: user._id, name: user.name, email: user.email, role: user.role }, token } });
+    return res.json({ success: true, data: { user: { id: user._id, name: user.name, email: user.email, role: user.role }, token } });
 });
 
 module.exports = router;

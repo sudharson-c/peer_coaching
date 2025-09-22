@@ -1,14 +1,12 @@
 const mongoose = require('mongoose');
 
-const ResponseSchema = new Schema({
-    doubt: { type: Schema.Types.ObjectId, ref: 'Doubt', required: true },
-    author: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+const ResponseSchema = mongoose.Schema({
+    doubt: { type: mongoose.Schema.Types.ObjectId, ref: 'Doubt', required: true },
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     content: { type: String },
     attachments: [{ url: String, type: String }],
     isByMentor: { type: Boolean, default: false },
     likes: { type: Number, default: 0 },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Response', ResponseSchema);
