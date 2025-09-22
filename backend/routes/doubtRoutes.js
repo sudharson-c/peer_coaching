@@ -15,15 +15,15 @@ router.post('/', authMiddleware, async (req, res) => {
 
 
 router.get('/', authMiddleware, async (req, res) => {
-    const doubts = await Doubt.find().sort({ createdAt: -1 }).populate('postedBy', 'name');
+    const doubts = await Doubt.find().sort({ createdAt: -1 }).populate('postedBy', 'username');
     return res.json({ success: true, data: doubts });
 });
 
 
 router.get('/:id', authMiddleware, async (req, res) => {
-    const doubt = await Doubt.findById(req.params.id).populate('postedBy', 'name');
+    const doubt = await Doubt.findById(req.params.id).populate('postedBy', 'username');
     if (!doubt) return res.status(404).json({ success: false, message: 'Not found' });
-    const responses = await Response.find({ doubt: doubt._id }).populate('author', 'name role');
+    const responses = await Response.find({ doubt: doubt._id }).populate('author', 'username role');
     return res.json({ success: true, data: { doubt, responses } });
 });
 

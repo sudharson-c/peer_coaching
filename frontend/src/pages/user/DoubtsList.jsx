@@ -1,10 +1,11 @@
-// AdminDoubts.jsx
+// DoubtsList.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../api/axios";
 
-export default function AdminDoubts() {
+export default function DoubtsList() {
   const [doubts, setDoubts] = useState([]);
+  const [q, setQ] = useState("");
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
@@ -13,7 +14,7 @@ export default function AdminDoubts() {
     (async () => {
       try {
         setLoading(true);
-        const res = await api.get("/admin/doubts");
+        const res = await api.get("/doubts");
         if (mounted) setDoubts(res.data.data || []);
       } catch (e) {
         setErr(e?.response?.data?.message || "Failed to load doubts");
@@ -24,20 +25,45 @@ export default function AdminDoubts() {
     return () => (mounted = false);
   }, []);
 
+  const filtered = doubts.filter(
+    (d) =>
+      !q ||
+      d.title?.toLowerCase().includes(q.toLowerCase()) ||
+      d.description?.toLowerCase().includes(q.toLowerCase())
+  );
+
   return (
     <section>
-      <header className="mb-4">
-        <h3 className="text-xl font-semibold">All Doubts</h3>
+      <header className="mb-4 flex items-center justify-between">
+        <h3 className="text-xl font-semibold">Doubts</h3>
+        <div className="flex items-center gap-2">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search title or description"
+            className="h-9 w-72 rounded border border-gray-300 px-3 text-sm"
+          />
+          <Link
+            to="/dashboard/new"
+            className="h-9 rounded bg-blue-600 px-3 text-sm font-medium text-white hover:bg-blue-700 flex items-center"
+          >
+            + New doubt
+          </Link>
+        </div>
       </header>
 
       {loading ? (
-        <div className="text-gray-500">Loading doubts…</div>
+        <div className="text-gray-500">Loading…</div>
       ) : err ? (
         <div className="text-red-600">{err}</div>
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {doubts.map((d) => (
-            <div key={d._id} className="rounded border p-4">
+          {filtered.map((d) => (
+            <Link
+              key={d._id}
+              to={`/dashboard/doubts/${d._id}`}
+              className="rounded border p-4 hover:shadow-sm"
+            >
               <div className="mb-1 flex items-center justify-between">
                 <h4 className="font-medium">{d.title}</h4>
                 <span
@@ -57,17 +83,9 @@ export default function AdminDoubts() {
               <div className="mt-2 text-xs text-gray-600">
                 Tags: {Array.isArray(d.tags) ? d.tags.join(", ") : "-"}
               </div>
-              <div className="mt-3">
-                <Link
-                  to={`/dashboard/doubts/${d._id}`}
-                  className="text-blue-700 hover:underline text-sm"
-                >
-                  Open in student view
-                </Link>
-              </div>
-            </div>
+            </Link>
           ))}
-          {!doubts.length && (
+          {!filtered.length && (
             <div className="col-span-full rounded border p-6 text-center text-gray-500">
               No doubts found
             </div>

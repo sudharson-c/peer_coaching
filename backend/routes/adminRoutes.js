@@ -8,10 +8,7 @@ const router = require("express").Router();
 
 
 
-router.get("/me", authMiddleware, async (req, res) => {
-    const user = req.user;
-    res.json({ success: true, data: { id: user._id, username: user.username, email: user.email, role: user.role, reputation: user.reputation } });
-});
+
 
 router.put("/add-mentor/:id", authMiddleware, checkAuth, async (req, res) => {
     const { id } = req.params;
@@ -30,7 +27,7 @@ router.get("/all-users", authMiddleware, checkAuth, async (req, res) => {
 });
 
 router.get('/doubts', authMiddleware, checkAuth, async (req, res) => {
-    const doubts = await Doubt.find().sort({ createdAt: -1 }).populate('postedBy', 'name');
+    const doubts = await Doubt.find().sort({ createdAt: -1 }).populate('postedBy', 'username');
     res.json({ success: true, data: doubts });
 });
 

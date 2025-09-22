@@ -1,6 +1,6 @@
 // AdminUsers.jsx
 import { useEffect, useMemo, useState } from "react";
-import api from "../api/axios";
+import api from "../../api/axios";
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -8,21 +8,22 @@ export default function AdminUsers() {
   const [role, setRole] = useState("all");
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const [busyId, setBusyId] = useState("");
+
+  const load = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/admin/all-users");
+      setUsers(res.data.data || []);
+    } catch (e) {
+      setErr(e?.response?.data?.message || "Failed to load users");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await api.get("/admin/users");
-        if (mounted) setUsers(res.data.data || []);
-      } catch (e) {
-        setErr(e?.response?.data?.message || "Failed to load users");
-      } finally {
-        setLoading(false);
-      }
-    })();
-    return () => (mounted = false);
+    load();
   }, []);
 
   const filtered = useMemo(() => {
@@ -30,11 +31,36 @@ export default function AdminUsers() {
       const matchRole = role === "all" ? true : u.role === role;
       const matchQ =
         !q ||
-        u.name?.toLowerCase().includes(q.toLowerCase()) ||
+        u.username?.toLowerCase().includes(q.toLowerCase()) ||
         u.email?.toLowerCase().includes(q.toLowerCase());
       return matchRole && matchQ;
     });
   }, [users, q, role]);
+
+  const promote = async (id) => {
+    setBusyId(id);
+    try {
+      await api.put(`/admin/add-mentor/${id}`);
+      await load();
+    } catch (e) {
+      setErr(e?.response?.data?.message || "Failed to promote user");
+    } finally {
+      setBusyId("");
+    }
+  };
+
+  const removeUser = async (id) => {
+    if (!confirm("Delete this user?")) return;
+    setBusyId(id);
+    try {
+      await api.delete(`/admin/users/${id}`);
+      setUsers((prev) => prev.filter((u) => u._id !== id));
+    } catch (e) {
+      setErr(e?.response?.data?.message || "Failed to delete user");
+    } finally {
+      setBusyId("");
+    }
+  };
 
   return (
     <section>
@@ -74,12 +100,13 @@ export default function AdminUsers() {
                 <th className="px-3 py-2">Role</th>
                 <th className="px-3 py-2">Reputation</th>
                 <th className="px-3 py-2">Joined</th>
+                <th className="px-3 py-2">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((u) => (
                 <tr key={u._id} className="border-t">
-                  <td className="px-3 py-2">{u.name}</td>
+                  <td className="px-3 py-2">{u.username}</td>
                   <td className="px-3 py-2">{u.email}</td>
                   <td className="px-3 py-2">
                     <span className="rounded bg-gray-100 px-2 py-1 text-xs font-medium">
@@ -92,12 +119,34 @@ export default function AdminUsers() {
                       ? new Date(u.createdAt).toLocaleDateString()
                       : "-"}
                   </td>
+                  <td className="px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      {u.role !== "mentor" && u.role !== "admin" && (
+                        <button
+                          onClick={() => promote(u._id)}
+                          disabled={busyId === u._id}
+                          className="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+                        >
+                          Promote to mentor
+                        </button>
+                      )}
+                      {u.role !== "admin" && (
+                        <button
+                          onClick={() => removeUser(u._id)}
+                          disabled={busyId === u._id}
+                          className="rounded border border-red-200 px-2 py-1 text-xs text-red-700 hover:bg-red-50 disabled:opacity-50"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
               {!filtered.length && (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-3 py-8 text-center text-gray-500"
                   >
                     No users match your filters

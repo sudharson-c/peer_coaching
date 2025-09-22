@@ -32,11 +32,12 @@ const Login = () => {
 
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Email (your-name@student.tce.edu)"
           className="border p-2 w-full mb-3 rounded"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          autoSave="email"
         />
         {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 

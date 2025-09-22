@@ -5,7 +5,7 @@ const Response = require('../models/Response');
 
 const router = require('express').Router();
 
-router.post('/:id/responses', authMiddleware, async (req, res) => {
+router.post('/:id', authMiddleware, async (req, res) => {
     const { content, attachments } = req.body;
     const doubt = await Doubt.findById(req.params.id);
     if (!doubt) return res.status(404).json({ success: false, message: 'Doubt not found' });
@@ -16,15 +16,13 @@ router.post('/:id/responses', authMiddleware, async (req, res) => {
     // create a notification for doubt owner
     const note = new Notification({ user: doubt.postedBy, type: 'new_response', message: `New response to your doubt: ${doubt.title}`, data: { doubtId: doubt._id, responseId: response._id } });
     await note.save();
-
-
     return res.json({ success: true, data: response });
 });
 
 
 router.get('/:id/responses', authMiddleware, async (req, res) => {
-    const responses = await Response.find({ doubt: req.params.id }).populate('author', 'name role');
-    return res.json({ success: true, data: responses });
+    const responses = await Response.find({ doubt: req.params.id }).populate('author', 'username role');
+    return res.json({ success: true, data: responses || [] });
 });
 
 

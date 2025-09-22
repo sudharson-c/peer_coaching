@@ -32,7 +32,7 @@ function Register() {
 
         <input
           type="username"
-          placeholder="Register No / Roll No "
+          placeholder="Register No / Roll No  (eg: 22ITXXX)"
           className="border p-2 w-full mb-3 rounded"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -40,7 +40,7 @@ function Register() {
         />
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Email (your-name@student.tce.edu)"
           className="border p-2 w-full mb-3 rounded"
           value={email}
           onChange={(e) => setEmail(e.target.value)}

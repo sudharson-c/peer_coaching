@@ -23,31 +23,6 @@ export default function Navbar() {
           <nav className="flex items-center gap-1">
             {user ? (
               <>
-                <NavLink
-                  to="/dashboard"
-                  className={({ isActive }) =>
-                    `${baseLink} ${isActive ? active : inactive}`
-                  }
-                >
-                  Dashboard
-                </NavLink>
-                <NavLink
-                  to="/dashboard/doubts"
-                  className={({ isActive }) =>
-                    `${baseLink} ${isActive ? active : inactive}`
-                  }
-                >
-                  Doubts
-                </NavLink>
-                <NavLink
-                  to="/dashboard/notifications"
-                  className={({ isActive }) =>
-                    `${baseLink} ${isActive ? active : inactive}`
-                  }
-                >
-                  Notifications
-                </NavLink>
-
                 {user.role === "admin" && (
                   <NavLink
                     to="/admin/dashboard"

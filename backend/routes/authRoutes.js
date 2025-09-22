@@ -29,4 +29,9 @@ router.post("/login", async (req, res) => {
     return res.json({ success: true, data: { user: { id: user._id, name: user.name, email: user.email, role: user.role }, token } });
 });
 
+router.get("/me", authMiddleware, async (req, res) => {
+    const user = req.user;
+    res.json({ success: true, data: { id: user._id, username: user.username, email: user.email, role: user.role, reputation: user.reputation } });
+});
+
 module.exports = router;
