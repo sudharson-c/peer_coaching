@@ -1,3 +1,4 @@
+// context/AuthContext.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
@@ -13,10 +14,23 @@ export const AuthProvider = ({ children }) => {
       const { token, user } = res.data.data;
       localStorage.setItem("token", token);
       setUser(user);
-      if (user.role === "admin") navigate("/admin/dashboard");
+      if (user.role === "admin") navigate("/admin");
       else navigate("/dashboard");
     } else {
       alert(res.data?.message || "Login failed");
+    }
+  };
+
+  const register = async (username, email, password) => {
+    const res = await api.post("auth/register", { username, email, password });
+    if (res.data.success) {
+      const { token, user } = res.data.data;
+      localStorage.setItem("token", token);
+      setUser(user);
+      if (user.role === "admin") navigate("/admin");
+      else navigate("/dashboard");
+    } else {
+      alert(res.data?.message || "Registration failed");
     }
   };
 
@@ -26,22 +40,8 @@ export const AuthProvider = ({ children }) => {
     navigate("/login");
   };
 
-  const register = async (username, email, password) => {
-    const res = await api.post("auth/register", { username, email, password });
-    if (res.data.success) {
-      const { token, user } = res.data.data;
-
-      localStorage.setItem("token", token);
-      setUser(user);
-      if (user.role === "admin") navigate("/admin/dashboard");
-      else navigate("/dashboard");
-    } else {
-      alert(res.data?.message || "Registration failed");
-    }
-  };
-
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
