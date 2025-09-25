@@ -22,10 +22,12 @@ import Notifications from "./pages/user/Notifications";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminDoubts from "./pages/admin/AdminDoubts";
 import AdminModeration from "./pages/admin/AdminModeration";
+import VerifyEmail from "./components/VerifyEmail";
 
 function ProtectedRoute({ children }) {
-  const { user, authLoading } = useAuth();
+  const { user, authLoading, isVerified } = useAuth();
   if (authLoading) return <div className="p-6 text-gray-500">Loading…</div>;
+  if (!isVerified && user) return <Navigate to="/verify-email" replace />;
   return user ? children : <Navigate to="/login" replace />;
 }
 function RoleRoute({ allow, children }) {
@@ -49,6 +51,7 @@ export default function App() {
           {/* Public */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
 
           {/* Student+Mentor */}
           <Route

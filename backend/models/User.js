@@ -7,7 +7,8 @@ const UserSchema = mongoose.Schema({
     role: { type: String, enum: ['student', 'mentor', 'admin'], default: 'student' },
     isPlaced: { type: Boolean, default: false },
     reputation: { type: Number, default: 0 },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    isVerified: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("User", UserSchema);

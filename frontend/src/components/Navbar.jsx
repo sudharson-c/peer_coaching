@@ -8,7 +8,7 @@ const inactive = "text-gray-600 hover:text-gray-900 hover:bg-gray-100";
 const active = "text-blue-700 bg-blue-50";
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, isVerified } = useAuth();
   const [open, setOpen] = useState(false);
   const loc = useLocation();
   const menuRef = useRef(null);
@@ -119,7 +119,7 @@ export default function Navbar() {
         <nav className="hidden items-center gap-2 md:flex">
           {user ? (
             <>
-              <AuthLinks />
+              {isVerified && <AuthLinks />}
               <span className="ml-2 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-gray-700">
                 {user.role}
               </span>
@@ -203,7 +203,7 @@ export default function Navbar() {
                   </button>
                 </div>
                 <nav className="flex flex-col gap-1 p-3">
-                  <AuthLinks />
+                  {isVerified && <AuthLinks />}
                   <button
                     onClick={logout}
                     className="mt-2 rounded border px-3 py-2 text-left text-sm hover:bg-gray-50"
