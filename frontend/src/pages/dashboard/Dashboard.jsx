@@ -38,6 +38,12 @@ export default function Dashboard() {
           >
             Notifications
           </NavLink>
+          <NavLink
+            to="/profile"
+            className={({ isActive }) => `${base} ${isActive ? on : off}`}
+          >
+            Profile
+          </NavLink>
         </nav>
       </aside>
 

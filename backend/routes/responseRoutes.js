@@ -21,6 +21,11 @@ router.post('/:id', authMiddleware, async (req, res) => {
     return res.json({ success: true, data: response });
 });
 
+router.get("/user/:id", authMiddleware, async (req, res) => {
+    const userId = req.params.id;
+    const responses = await Response.find({ author: userId })
+    return res.json({ success: true, data: responses || [] });
+})
 
 router.get('/:id/responses', authMiddleware, async (req, res) => {
     const responses = await Response.find({ doubt: req.params.id }).populate('author', 'username role');

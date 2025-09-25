@@ -23,6 +23,8 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminDoubts from "./pages/admin/AdminDoubts";
 import AdminModeration from "./pages/admin/AdminModeration";
 import VerifyEmail from "./components/VerifyEmail";
+import Profile from "./pages/common/Profile";
+import PlacementPreparation from "./pages/common/PlacementPreparation";
 
 function ProtectedRoute({ children }) {
   const { user, authLoading, isVerified } = useAuth();
@@ -90,6 +92,22 @@ export default function App() {
             element={<Navigate to="/admin" replace />}
           />
 
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/training"
+            element={
+              <ProtectedRoute>
+                <PlacementPreparation />
+              </ProtectedRoute>
+            }
+          />
           {/* Defaults */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

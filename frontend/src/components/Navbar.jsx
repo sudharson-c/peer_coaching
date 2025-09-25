@@ -70,6 +70,22 @@ export default function Navbar() {
       >
         Notifications
       </NavLink>
+      <NavLink
+        to="/training"
+        className={({ isActive }) =>
+          `${baseLink} ${isActive ? active : inactive}`
+        }
+      >
+        Placement Preparation
+      </NavLink>
+      <NavLink
+        to="/profile"
+        className={({ isActive }) =>
+          `${baseLink} ${isActive ? active : inactive}`
+        }
+      >
+        Profile
+      </NavLink>
 
       {user?.role === "admin" && (
         <>

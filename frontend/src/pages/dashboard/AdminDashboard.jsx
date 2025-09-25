@@ -33,6 +33,12 @@ export default function AdminDashboard() {
           >
             Moderation
           </NavLink>
+          <NavLink
+            to="/profile"
+            className={({ isActive }) => `${base} ${isActive ? on : off}`}
+          >
+            Profile
+          </NavLink>
         </nav>
       </aside>
 

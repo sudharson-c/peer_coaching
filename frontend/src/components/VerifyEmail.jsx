@@ -13,6 +13,7 @@ export default function VerifyEmail() {
   const pollRef = useRef(null);
   const [msg, setMsg] = useState("");
 
+  // components/VerifyEmail.jsx (fast and robust)
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -32,7 +33,7 @@ export default function VerifyEmail() {
           setVerified();
           await refreshMe();
           navigate("/dashboard", { replace: true });
-          return; // ensure no fall-through
+          return;
         }
         setMsg(res.data?.message || "Verification failed.");
       } catch (e) {
@@ -46,7 +47,6 @@ export default function VerifyEmail() {
       if (pollRef.current) return;
       pollRef.current = setInterval(async () => {
         try {
-          console.log("Polling verification status");
           const r = await api.post("/auth/verified", { email: user.email });
           if (r.data?.isVerified) {
             clearInterval(pollRef.current);
@@ -54,8 +54,8 @@ export default function VerifyEmail() {
             setVerified();
             navigate("/dashboard", { replace: true });
           }
-        } catch (error) {
-          console.log(error);
+        } catch (e) {
+          console.log(e);
         }
       }, 5000);
     };
@@ -63,7 +63,7 @@ export default function VerifyEmail() {
     if (token) {
       verifyWithToken();
       return;
-    } // do not poll or resend when token present
+    }
     startPoll();
 
     return () => {
@@ -72,14 +72,13 @@ export default function VerifyEmail() {
         pollRef.current = null;
       }
     };
-  }, [authLoading, user, token, navigate, refreshMe, setVerified]);
+  }, [authLoading, user, isVerified, token, navigate, refreshMe, setVerified]);
 
-  // Add a simple in-flight guard to the resend button
   const [sending, setSending] = useState(false);
   const resend = async () => {
+    if (sending) return;
+    setSending(true);
     try {
-      if (sending) return;
-      setSending(true);
       setMsg("Resending…");
       await api.post("/auth/generate-token", { email: user?.email });
       setMsg(`A verification link was sent to ${user?.email}.`);

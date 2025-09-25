@@ -11,45 +11,47 @@ export const AuthProvider = ({ children }) => {
   const [isVerified, setIsVerified] = useState(false);
   const navigate = useNavigate();
 
-  // context/AuthContext.jsx (fix control flow and helpers)
+  // context/AuthContext.jsx (cleaned)
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
-    if (res.data.success) {
-      const { token, user } = res.data.data;
-      localStorage.setItem("token", token);
-      setUser(user);
-      const verified = !!user.isVerified;
-      setIsVerified(verified);
-      if (!verified) {
-        await api.post("/auth/generate-token", { email });
-        navigate("/verify-email");
-        return; // prevent falling through
-      }
-      if (user.role === "admin") navigate("/admin");
-      else navigate("/dashboard");
-    } else {
+    if (!res.data.success) {
       alert(res.data?.message || "Login failed");
+      return;
     }
+    const { token, user } = res.data.data;
+    localStorage.setItem("token", token);
+    setUser(user);
+    const verified = !!user.isVerified;
+    setIsVerified(verified);
+    if (!verified) {
+      navigate("/verify-email");
+      return;
+    }
+    navigate(user.role === "admin" ? "/admin" : "/dashboard");
   };
 
   const register = async (username, email, password) => {
     const res = await api.post("/auth/register", { username, email, password });
-    if (res.data.success) {
-      const { token, user } = res.data.data;
-      localStorage.setItem("token", token);
-      setUser(user);
-      const verified = !!user.isVerified;
-      setIsVerified(verified);
-      if (!verified) {
-        await api.post("/auth/generate-token", { email }); // one-time send
-        navigate("/verify-email");
-        return; // prevent falling through
-      }
-      if (user.role === "admin") navigate("/admin");
-      else navigate("/dashboard");
-    } else {
+    if (!res.data.success) {
       alert(res.data?.message || "Registration failed");
+      return;
     }
+    const { token, user } = res.data.data;
+    localStorage.setItem("token", token);
+    setUser(user);
+    const verified = !!user.isVerified;
+    setIsVerified(verified);
+    if (!verified) {
+      // send once, errors ignored for UX; user can resend from page
+      try {
+        await api.post("/auth/generate-token", { email });
+      } catch {
+        console.log();
+      }
+      navigate("/verify-email");
+      return;
+    }
+    navigate(user.role === "admin" ? "/admin" : "/dashboard");
   };
 
   const refreshMe = async () => {

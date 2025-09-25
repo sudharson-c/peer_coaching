@@ -13,8 +13,9 @@ export default function AdminModeration() {
     if (!doubtId) return;
     try {
       setLoading(true);
-      const res = await api.get(`/doubts/${doubtId}/responses`);
-      setResponses(res.data.data || []);
+      const res = await api.get(`/doubts/${doubtId}`);
+      console.log(res.data.data);
+      setResponses(res.data.data.responses || []);
     } catch (e) {
       setMsg(e?.response?.data?.message || "Failed to load responses");
     } finally {
