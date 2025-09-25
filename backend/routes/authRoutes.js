@@ -50,17 +50,9 @@ router.post("/generate-token", (req, res) => {
     const { email } = req.body;
 
     const token = jwt.sign({}, process.env.EMAIL_SECRET, { expiresIn: '1h' });
-    const nodemailer = require("nodemailer");
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.EMAIL_HOST,
-            pass: process.env.EMAIL_PASS
-        },
 
-    });
+    const { resend } = require("../config/mail")
+
     const verificationUrl = `${process.env.SERVER_URL}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
     const htmlContent = EMAIL_HTML_TEMPLATE.replace(/{verificationUrl}/g, verificationUrl);
     const mailOptions = {
@@ -70,18 +62,14 @@ router.post("/generate-token", (req, res) => {
         html: htmlContent
 
     };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Error sending email:', error);
-            return res.status(500).json({ success: false, message: 'Error sending email' });
-        } else {
-            console.log('Email sent: ' + info.response);
-            return res.json({ success: true, message: 'Verification email sent' });
-        }
-
-    });
-})
+    resend.emails.send(mailOptions).then(() => {
+        console.log('Email sent: ' + info.response);
+        return res.json({ success: true, message: 'Verification email sent' });
+    }).catch(error => {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ success: false, message: 'Error sending email' });
+    })
+});
 router.post("/verified", async (req, res) => {
     console.log("Checking verification status");
     const { email } = req.body;
