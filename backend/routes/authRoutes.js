@@ -3,6 +3,8 @@ const User = require("../models/User");
 const router = require("express").Router();
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
+const { resend } = require("../config/mail")
+
 
 const EMAIL_SUBJECT = 'Verify your email';
 const EMAIL_HTML_TEMPLATE = `
@@ -51,7 +53,6 @@ router.post("/generate-token", (req, res) => {
 
     const token = jwt.sign({}, process.env.EMAIL_SECRET, { expiresIn: '1h' });
 
-    const { resend } = require("../config/mail")
 
     const verificationUrl = `${process.env.SERVER_URL}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
     const htmlContent = EMAIL_HTML_TEMPLATE.replace(/{verificationUrl}/g, verificationUrl);
