@@ -3,8 +3,7 @@ const User = require("../models/User");
 const router = require("express").Router();
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
-const axios = require('axios')
-
+const emailjs = require("@emailjs/nodejs");
 
 
 const EMAIL_SUBJECT = 'Verify your email';
@@ -51,38 +50,30 @@ router.get("/me", authMiddleware, async (req, res) => {
 router.post("/generate-token", async (req, res) => {
     console.log("Generating token");
     const { email } = req.body;
-
     try {
+        // generate JWT token
         const token = jwt.sign({ email }, process.env.EMAIL_SECRET, { expiresIn: "1h" });
-
         const verificationUrl = `${process.env.SERVER_URL}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
-        const htmlContent = EMAIL_HTML_TEMPLATE.replace(/{verificationUrl}/g, verificationUrl);
-
-        // Call EmailJS REST API
-        const response = await axios.post(
-            "https://api.emailjs.com/api/v1.0/email/send",
+        // send email via EmailJS
+        const response = await emailjs.send(
+            process.env.EMAILJS_SERVICE_ID,
+            process.env.EMAILJS_TEMPLATE_ID,
             {
-                service_id: process.env.EMAILJS_SERVICE_ID,
-                template_id: process.env.EMAILJS_TEMPLATE_ID,
-                user_id: process.env.EMAILJS_PUBLIC_KEY, // sometimes called public key
-                accessToken: process.env.EMAILJS_PRIVATE_KEY, // only if needed for backend calls
-                template_params: {
-                    to_email: email,
-                    subject: EMAIL_SUBJECT,
-                    message: htmlContent,
-                },
+                email: email,
+                verificationUrl,
+                link: verificationUrl,
+                subject: EMAIL_SUBJECT,
             },
             {
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                publicKey: process.env.EMAILJS_PUBLIC_KEY,
+                privateKey: process.env.EMAILJS_PRIVATE_KEY, // required in backend
             }
         );
 
-        console.log("Email sent:", response.data);
+        console.log("Email sent:", response);
         return res.json({ success: true, message: "Verification email sent" });
     } catch (error) {
-        console.error("Error sending email:", error.response?.data || error.message);
+        console.error("Error sending email:", error);
         return res.status(500).json({ success: false, message: "Error sending email" });
     }
 });
@@ -112,10 +103,10 @@ router.get("/verify-email", async (req, res) => {
 
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json({ success: false, message: 'No such user' });
-        if (user.isVerified) return res.json({ success: true, message: 'Email already verified' });
+        if (user.isVerified) return res.redirect(`${process.env.CLIENT_URL.replace(/\/$/, '')}/dashboard`)
         user.isVerified = true;
         await user.save();
-        return res.json({ success: true, message: 'Email verified successfully' });
+        return res.redirect(`${process.env.CLIENT_URL.replace(/\/$/, '')}/dashboard`);
 
     } catch (e) {
         console.log(e);
