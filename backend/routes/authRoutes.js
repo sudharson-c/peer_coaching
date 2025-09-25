@@ -53,10 +53,13 @@ router.post("/generate-token", (req, res) => {
     const nodemailer = require("nodemailer");
     const transporter = nodemailer.createTransport({
         service: 'gmail',
+        port: 587,
+        secure: false,
         auth: {
             user: process.env.EMAIL_HOST,
             pass: process.env.EMAIL_PASS
-        }
+        },
+
     });
     const verificationUrl = `${process.env.SERVER_URL}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
     const htmlContent = EMAIL_HTML_TEMPLATE.replace(/{verificationUrl}/g, verificationUrl);
