@@ -12,7 +12,7 @@ export default function ResponseComposer({ doubtId, onPosted }) {
     e.preventDefault();
     setErr("");
     if (!content.trim()) return setErr("Content required");
-    const attachments = drive ? [{ url: drive }] : [];
+    const attachments = drive ? [drive] : [];
     try {
       setBusy(true);
       await api.post(`/response/${doubtId}`, {
