@@ -65,7 +65,7 @@ router.post("/generate-token", (req, res) => {
 
     };
     resend.emails.send(mailOptions).then(() => {
-        console.log('Email sent: ' + info.response);
+        console.log('Email sent successfully');
         return res.json({ success: true, message: 'Verification email sent' });
     }).catch(error => {
         console.error('Error sending email:', error);
