@@ -1,9 +1,10 @@
+const resend = require("../config/mail");
 const authMiddleware = require("../middleware/authMiddleware");
 const User = require("../models/User");
 const router = require("express").Router();
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
-const { resend } = require("../config/mail.js")
+
 
 
 const EMAIL_SUBJECT = 'Verify your email';
