@@ -12,7 +12,7 @@ export default function ResponseComposer({ doubtId, onPosted }) {
     e.preventDefault();
     setErr("");
     if (!content.trim()) return setErr("Content required");
-    const attachments = drive ? [{ url: drive, type: "drive" }] : [];
+    const attachments = drive ? [{ url: drive }] : [];
     try {
       setBusy(true);
       await api.post(`/response/${doubtId}`, {
@@ -42,7 +42,7 @@ export default function ResponseComposer({ doubtId, onPosted }) {
       <input
         value={drive}
         onChange={(e) => setDrive(e.target.value)}
-        placeholder="Google Drive link (optional)"
+        placeholder="Google Drive or Resource link  (optional)"
         className="w-full rounded border border-gray-300 px-3 py-2"
       />
       {err && <div className="text-sm text-red-600">{err}</div>}

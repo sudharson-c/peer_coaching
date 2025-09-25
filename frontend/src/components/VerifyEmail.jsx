@@ -95,6 +95,10 @@ export default function VerifyEmail() {
       <p className="mt-2 text-sm text-gray-700">
         {msg || "Preparing verification…"}
       </p>
+      <p>
+        Kindly check your spam folder for the mail and report it not spam to
+        access verify link{" "}
+      </p>
       {!token && (
         <div className="mt-4">
           <button
