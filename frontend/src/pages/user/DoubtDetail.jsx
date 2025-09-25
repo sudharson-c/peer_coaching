@@ -386,12 +386,12 @@ export default function DoubtDetail() {
                             {r.attachments.map((a, idx) => (
                               <a
                                 key={idx}
-                                href={a.url}
+                                href={a}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="text-xs text-blue-700 underline"
                               >
-                                {a.type || "attachment"}
+                                {a || "attachment"}
                               </a>
                             ))}
                           </div>
