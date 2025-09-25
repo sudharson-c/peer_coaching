@@ -48,30 +48,46 @@ router.get("/me", authMiddleware, async (req, res) => {
     res.json({ success: true, data: { id: user._id, username: user.username, email: user.email, role: user.role, reputation: user.reputation, isVerified: user.isVerified } });
 });
 
-router.post("/generate-token", (req, res) => {
+router.post("/generate-token", async (req, res) => {
     console.log("Generating token");
     const { email } = req.body;
 
-    const token = jwt.sign({}, process.env.EMAIL_SECRET, { expiresIn: '1h' });
+    try {
+        const token = jwt.sign({ email }, process.env.EMAIL_SECRET, { expiresIn: "1h" });
 
+        const verificationUrl = `${process.env.SERVER_URL}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
+        const htmlContent = EMAIL_HTML_TEMPLATE.replace(/{verificationUrl}/g, verificationUrl);
 
-    const verificationUrl = `${process.env.SERVER_URL}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
-    const htmlContent = EMAIL_HTML_TEMPLATE.replace(/{verificationUrl}/g, verificationUrl);
-    const mailOptions = {
-        from: process.env.EMAIL_HOST,
-        to: email,
-        subject: EMAIL_SUBJECT,
-        html: htmlContent
+        // Call EmailJS REST API
+        const response = await axios.post(
+            "https://api.emailjs.com/api/v1.0/email/send",
+            {
+                service_id: process.env.EMAILJS_SERVICE_ID,
+                template_id: process.env.EMAILJS_TEMPLATE_ID,
+                user_id: process.env.EMAILJS_PUBLIC_KEY, // sometimes called public key
+                accessToken: process.env.EMAILJS_PRIVATE_KEY, // only if needed for backend calls
+                template_params: {
+                    to_email: email,
+                    subject: EMAIL_SUBJECT,
+                    message: htmlContent,
+                },
+            },
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
 
-    };
-    resend.emails.send(mailOptions).then(() => {
-        console.log('Email sent successfully');
-        return res.json({ success: true, message: 'Verification email sent' });
-    }).catch(error => {
-        console.error('Error sending email:', error);
-        return res.status(500).json({ success: false, message: 'Error sending email' });
-    })
+        console.log("Email sent:", response.data);
+        return res.json({ success: true, message: "Verification email sent" });
+    } catch (error) {
+        console.error("Error sending email:", error.response?.data || error.message);
+        return res.status(500).json({ success: false, message: "Error sending email" });
+    }
 });
+
+
 router.post("/verified", async (req, res) => {
     console.log("Checking verification status");
     const { email } = req.body;
