@@ -27,6 +27,7 @@ export default function DoubtDetail() {
   // Response edit state
   const [editingRespId, setEditingRespId] = useState(null);
   const [editRespContent, setEditRespContent] = useState("");
+  const [editRespAttach, setEditRespAtt] = useState("");
   const [busyRespId, setBusyRespId] = useState(null);
 
   // Local UX controls
@@ -95,6 +96,7 @@ export default function DoubtDetail() {
   const startEditResponse = (r) => {
     setEditingRespId(r._id);
     setEditRespContent(r.content || "");
+    setEditRespAtt(r.attachments || "");
   };
 
   const saveResponse = async (respId) => {
@@ -102,6 +104,7 @@ export default function DoubtDetail() {
     try {
       const res = await api.patch(`/response/${respId}`, {
         content: editRespContent,
+        attachments: editRespAttach,
       });
       const updated = res.data?.data;
       setResponses((prev) =>
@@ -109,6 +112,7 @@ export default function DoubtDetail() {
       );
       setEditingRespId(null);
       setEditRespContent("");
+      setEditRespAtt("");
     } catch (e) {
       // surface minimal error
       alert(e?.response?.data?.message || "Failed to update response");
@@ -356,6 +360,14 @@ export default function DoubtDetail() {
                         rows={4}
                         className="w-full rounded border border-gray-300 px-3 py-2"
                       />
+                      <input
+                        type="text"
+                        value={editRespAttach}
+                        onChange={(e) => setEditRespAtt(e.target.value)}
+                        rows={4}
+                        className="w-full rounded border border-gray-300 px-3 py-2"
+                      />
+
                       <div className="flex gap-2">
                         <button
                           onClick={() => saveResponse(r._id)}
