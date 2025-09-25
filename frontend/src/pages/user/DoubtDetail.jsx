@@ -403,7 +403,7 @@ export default function DoubtDetail() {
                                 rel="noreferrer"
                                 className="text-xs text-blue-700 underline"
                               >
-                                {a || "attachment"}
+                                {"View Attachment"}
                               </a>
                             ))}
                           </div>
