@@ -8,7 +8,7 @@ const ResourceSchema = new mongoose.Schema(
         note: { type: String, trim: true },
         section: {
             type: String,
-            enum: ["dsa", "os", "cn", "dbms", "system-design", "interview", "company-wise"],
+            enum: ["dsa", "os", "cn", "dbms", "oops", "system-design", "interview", "company-wise"],
             required: true,
             index: true,
         },
