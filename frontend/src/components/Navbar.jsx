@@ -123,12 +123,18 @@ export default function Navbar() {
 
   return (
     <header className="sticky inset-x-0 top-0 z-50 border-b bg-white/80 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <Link
           to={user ? "/dashboard" : "/login"}
           className="text-lg font-semibold tracking-tight text-gray-900 flex gap-2"
         >
-          <img src="/logo.png" alt="" width={"30px"} height={"40px"} />
+          <img
+            src="/logo.png"
+            alt=""
+            className="sm:block md:hidden lg:block"
+            width={"30px"}
+            height={"40px"}
+          />
           Peer Coaching
         </Link>
 

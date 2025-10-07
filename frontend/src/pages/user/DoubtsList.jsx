@@ -34,18 +34,20 @@ export default function DoubtsList() {
 
   return (
     <section>
-      <header className="mb-4 flex items-center justify-between">
-        <h3 className="text-md md:text-xl font-semibold p-2">Doubts</h3>
-        <div className="flex items-center gap-2">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search title or description"
-            className="h-9 w-72 rounded border border-gray-300 px-3 text-sm"
-          />
+      <header className="mb-4 flex flex-col md:flex-row items-center justify-between">
+        <h3 className="text-xl font-semibold p-2">Doubts</h3>
+        <div className="flex flex-col md:flex-row items-center gap-2">
+          <div>
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search title or description"
+              className="h-9 w-72 rounded border border-gray-300 px-3 text-sm"
+            />
+          </div>
           <Link
             to="/dashboard/new"
-            className=" rounded bg-blue-600 text-sm md:text-md md:p-2 text-white hover:bg-blue-700 text-center"
+            className=" rounded bg-blue-600 text-sm md:text-md p-2 w-full text-white hover:bg-blue-700 text-center"
           >
             + New doubt
           </Link>
