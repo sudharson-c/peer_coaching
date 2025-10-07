@@ -126,8 +126,9 @@ export default function Navbar() {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <Link
           to={user ? "/dashboard" : "/login"}
-          className="text-lg font-semibold tracking-tight text-gray-900"
+          className="text-lg font-semibold tracking-tight text-gray-900 flex gap-2"
         >
+          <img src="/logo.png" alt="" width={"30px"} height={"40px"} />
           Peer Coaching
         </Link>
 
