@@ -23,6 +23,9 @@ const resourcesRoutes = require("./routes/resourcesRoute")
 app.get("/", (req, res) => {
     return res.json({ success: true, data: "server says hi" });
 })
+app.get("/api/status", (req, res) => {
+    return res.json({ success: true, data: "API is running" });
+})
 app.use('/api/auth', authRoutes);
 app.use('/api/doubts', doubtRoutes);
 app.use('/api/response', responseRoutes);
